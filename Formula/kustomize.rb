@@ -21,12 +21,14 @@ class Kustomize < Formula
 
     revision = Utils.popen_read("git", "rev-parse", "HEAD").strip
     tag = Utils.popen_read("git", "describe", "--tags").strip
+    date = Utils.popen_read("date", "+'%Y-%m-%dT%H:%M:%SZ'").strip
     dir = buildpath/"src/sigs.k8s.io/kustomize"
     dir.install buildpath.children - [buildpath/".brew_home"]
     cd dir do
       ldflags = %W[
-        -s -X sigs.k8s.io/kustomize/pkg/commands.kustomizeVersion=#{tag}
-        -X sigs.k8s.io/kustomize/pkg/commands.gitCommit=#{revision}
+        -s -X sigs.k8s.io/kustomize/pkg/commands/misc.kustomizeVersion=#{tag}
+        -X sigs.k8s.io/kustomize/pkg/commands/misc.gitCommit=#{revision}
+        -X sigs.k8s.io/kustomize/pkg/commands/misc.buildDate=#{date}
       ]
       system "go", "install", "-ldflags", ldflags.join(" ")
       bin.install buildpath/"bin/kustomize"
